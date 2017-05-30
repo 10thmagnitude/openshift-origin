@@ -41,7 +41,7 @@ echo $(date) " - Generating Private keys for use by Ansible for OpenShift Instal
 
 azure keyvault secret get -u $KEYVAULTNAME -s $PRIVATEKEYSECRETNAME --file /home/$SUDOUSER/.ssh/id_rsa
 
-runuser -l $SUDOUSER -c "chmod 600 ~/.ssh/id_rsa*"
+chmod 600 /home/$SUDOUSER/.ssh/id_rsa
 
 echo $(date) "- Configuring SSH ControlPath to use shorter path name"
 
