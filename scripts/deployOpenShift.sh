@@ -36,12 +36,10 @@ echo $(date) " - Creating vhds container in PV Storage Account"
 azure telemetry --disable
 azure login --service-principal -u $AADCLIENTID -p $AADCLIENTSECRET --tenant $TENANTID
 
-mkdir /home/$SUDOUSER/.ssh
-
 # Generate private keys for use by Ansible
 echo $(date) " - Generating Private keys for use by Ansible for OpenShift Installation"
 
-azure keyvault secret get -u $KEYVAULTNAME -s $PRIVATEKEYSECRETNAME --file ~/.ssh/id_rsa
+azure keyvault secret get -u $KEYVAULTNAME -s $PRIVATEKEYSECRETNAME --file /home/$SUDOUSER/.ssh/id_rsa
 
 runuser -l $SUDOUSER -c "chmod 600 ~/.ssh/id_rsa*"
 
