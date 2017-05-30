@@ -24,9 +24,7 @@ AADCLIENTID=${17}
 AADCLIENTSECRET="${18}"
 RESOURCEGROUP=${19}
 LOCATION=${20}
-STORAGEACCOUNT1=${21}
-SAKEY1=${22}
-KEYVAULTNAME=${23}
+KEYVAULTNAME=${21}
 
 MASTERLOOP=$((MASTERCOUNT - 1))
 INFRALOOP=$((INFRACOUNT - 1))
@@ -38,12 +36,9 @@ echo $(date) " - Creating vhds container in PV Storage Account"
 azure telemetry --disable
 azure login --service-principal -u $AADCLIENTID -p $AADCLIENTSECRET --tenant $TENANTID
 
-azure storage container create -a $STORAGEACCOUNT1 -k $SAKEY1 --container vhds
-
 # Generate private keys for use by Ansible
 echo $(date) " - Generating Private keys for use by Ansible for OpenShift Installation"
 
-# runuser -l $SUDOUSER -c "echo \"$PRIVATEKEY\" > ~/.ssh/id_rsa"
 azure keyvault secret get -u $KEYVAULTNAME -s $PRIVATEKEYSECRETNAME --file ~/.ssh/id_rsa
 
 runuser -l $SUDOUSER -c "chmod 600 ~/.ssh/id_rsa*"
