@@ -44,7 +44,7 @@ azure storage container create -a $STORAGEACCOUNT1 -k $SAKEY1 --container vhds
 echo $(date) " - Generating Private keys for use by Ansible for OpenShift Installation"
 
 # runuser -l $SUDOUSER -c "echo \"$PRIVATEKEY\" > ~/.ssh/id_rsa"
-azure keyvault secret get $KEYVAULTNAME $PRIVATEKEYSECRETNAME ~/.ssh/id_rsa
+azure keyvault secret get -u $KEYVAULTNAME -s $PRIVATEKEYSECRETNAME --file ~/.ssh/id_rsa
 
 runuser -l $SUDOUSER -c "chmod 600 ~/.ssh/id_rsa*"
 
