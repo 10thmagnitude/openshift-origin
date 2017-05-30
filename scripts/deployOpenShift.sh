@@ -6,7 +6,7 @@ set -e
 
 SUDOUSER=$1
 PASSWORD="$2"
-PRIVATEKEY=$3
+PRIVATEKEYSECRETNAME=$3
 MASTER=$4
 MASTERPUBLICIPHOSTNAME=$5
 MASTERPUBLICIPADDRESS=$6
@@ -26,6 +26,7 @@ RESOURCEGROUP=${19}
 LOCATION=${20}
 STORAGEACCOUNT1=${21}
 SAKEY1=${22}
+KEYVAULTNAME=${23}
 
 MASTERLOOP=$((MASTERCOUNT - 1))
 INFRALOOP=$((INFRACOUNT - 1))
@@ -42,7 +43,9 @@ azure storage container create -a $STORAGEACCOUNT1 -k $SAKEY1 --container vhds
 # Generate private keys for use by Ansible
 echo $(date) " - Generating Private keys for use by Ansible for OpenShift Installation"
 
-runuser -l $SUDOUSER -c "echo \"$PRIVATEKEY\" > ~/.ssh/id_rsa"
+# runuser -l $SUDOUSER -c "echo \"$PRIVATEKEY\" > ~/.ssh/id_rsa"
+azure keyvault secret get $KEYVAULTNAME $PRIVATEKEYSECRETNAME ~/.ssh/id_rsa
+
 runuser -l $SUDOUSER -c "chmod 600 ~/.ssh/id_rsa*"
 
 echo $(date) "- Configuring SSH ControlPath to use shorter path name"
@@ -160,7 +163,7 @@ then
 # Single Master Configuration
 
 cat > /home/${SUDOUSER}/setup-azure-master.yml <<EOF
-#!/usr/bin/ansible-playbook 
+#!/usr/bin/ansible-playbook
 - hosts: masters
   gather_facts: no
   serial: 1
@@ -193,7 +196,7 @@ cat > /home/${SUDOUSER}/setup-azure-master.yml <<EOF
           "subscriptionID" : "{{ g_subscriptionId }}",
           "tenantID" : "{{ g_tenantId }}",
           "resourceGroup": "{{ g_resourceGroup }}",
-        } 
+        }
     notify:
     - restart origin-master
 
@@ -227,7 +230,7 @@ else
 # Multiple Master Configuration
 
 cat > /home/${SUDOUSER}/setup-azure-master.yml <<EOF
-#!/usr/bin/ansible-playbook 
+#!/usr/bin/ansible-playbook
 - hosts: masters
   gather_facts: no
   serial: 1
@@ -265,7 +268,7 @@ cat > /home/${SUDOUSER}/setup-azure-master.yml <<EOF
           "subscriptionID" : "{{ g_subscriptionId }}",
           "tenantID" : "{{ g_tenantId }}",
           "resourceGroup": "{{ g_resourceGroup }}",
-        } 
+        }
     notify:
     - restart origin-master-api
     - restart origin-master-controllers
@@ -301,7 +304,7 @@ fi
 # Create Azure Cloud Provider configuration Playbook for Node Config (Master Nodes)
 
 cat > /home/${SUDOUSER}/setup-azure-node-master.yml <<EOF
-#!/usr/bin/ansible-playbook 
+#!/usr/bin/ansible-playbook
 - hosts: masters
   serial: 1
   gather_facts: no
@@ -333,7 +336,7 @@ cat > /home/${SUDOUSER}/setup-azure-node-master.yml <<EOF
           "subscriptionID" : "{{ g_subscriptionId }}",
           "tenantID" : "{{ g_tenantId }}",
           "resourceGroup": "{{ g_resourceGroup }}",
-        } 
+        }
     notify:
     - restart origin-node
   - name: insert the azure disk config into the node
@@ -356,7 +359,7 @@ EOF
 # Create Azure Cloud Provider configuration Playbook for Node Config (Non-Master Nodes)
 
 cat > /home/${SUDOUSER}/setup-azure-node.yml <<EOF
-#!/usr/bin/ansible-playbook 
+#!/usr/bin/ansible-playbook
 - hosts: nodes:!masters
   serial: 1
   gather_facts: no
@@ -388,7 +391,7 @@ cat > /home/${SUDOUSER}/setup-azure-node.yml <<EOF
           "subscriptionID" : "{{ g_subscriptionId }}",
           "tenantID" : "{{ g_tenantId }}",
           "resourceGroup": "{{ g_resourceGroup }}",
-        } 
+        }
     notify:
     - restart origin-node
   - name: insert the azure disk config into the node
@@ -561,7 +564,7 @@ $MASTER-[0:${MASTERLOOP}]
 
 # host group for etcd
 [etcd]
-$MASTER-[0:${MASTERLOOP}] 
+$MASTER-[0:${MASTERLOOP}]
 
 [master0]
 $MASTER-0
