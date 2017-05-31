@@ -43,6 +43,8 @@ azure keyvault secret get -u $KEYVAULTNAME -s $PRIVATEKEYSECRETNAME --file /home
 
 chmod 600 /home/$SUDOUSER/.ssh/id_rsa
 
+cp -p /home/$SUDOUSER/.ssh/id_rsa /root/.ssh/id_rsa
+
 echo $(date) "- Configuring SSH ControlPath to use shorter path name"
 
 sed -i -e "s/^# control_path = %(directory)s\/%%h-%%r/control_path = %(directory)s\/%%h-%%r/" /etc/ansible/ansible.cfg
