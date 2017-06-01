@@ -36,9 +36,12 @@ azure login --service-principal -u $AADCLIENTID -p $AADCLIENTSECRET --tenant $TE
 # Generate private keys for use by Ansible
 echo $(date) " - Generating Private keys for use by Ansible for OpenShift Installation"
 
-runuser -l $SUDOUSER -c "azure keyvault secret get -u $KEYVAULTNAME -s $PRIVATEKEYSECRETNAME --file /home/$SUDOUSER/.ssh/id_rsa"
+mkdir -m 700 /home/$SUDOUSER/.ssh
+
+azure keyvault secret get -u $KEYVAULTNAME -s $PRIVATEKEYSECRETNAME --file /home/$SUDOUSER/.ssh/id_rsa
 
 chmod 600 /home/$SUDOUSER/.ssh/id_rsa
+chown $SUDOUSER /home/$SUDOUSER/.ssh/id_rsa
 
 echo $(date) "- Configuring SSH ControlPath to use shorter path name"
 
