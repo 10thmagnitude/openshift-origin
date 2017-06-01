@@ -30,28 +30,21 @@ MASTERLOOP=$((MASTERCOUNT - 1))
 INFRALOOP=$((INFRACOUNT - 1))
 NODELOOP=$((NODECOUNT - 1))
 
-# Create vhds Container in PV Storage Account
-echo $(date) " - Creating vhds container in PV Storage Account"
-
 azure telemetry --disable
 azure login --service-principal -u $AADCLIENTID -p $AADCLIENTSECRET --tenant $TENANTID
 
 # Generate private keys for use by Ansible
 echo $(date) " - Generating Private keys for use by Ansible for OpenShift Installation"
 
-azure keyvault secret get -u $KEYVAULTNAME -s $PRIVATEKEYSECRETNAME --file /home/$SUDOUSER/.ssh/id_rsa
+runuser -l $SUDOUSER -c "azure keyvault secret get -u $KEYVAULTNAME -s $PRIVATEKEYSECRETNAME --file /home/$SUDOUSER/.ssh/id_rsa"
 
 chmod 600 /home/$SUDOUSER/.ssh/id_rsa
-
-mkdir /root/.ssh/
-cp -p /home/$SUDOUSER/.ssh/id_rsa /root/.ssh/id_rsa
 
 echo $(date) "- Configuring SSH ControlPath to use shorter path name"
 
 sed -i -e "s/^# control_path = %(directory)s\/%%h-%%r/control_path = %(directory)s\/%%h-%%r/" /etc/ansible/ansible.cfg
 sed -i -e "s/^#host_key_checking = False/host_key_checking = False/" /etc/ansible/ansible.cfg
 sed -i -e "s/^#pty=False/pty=False/" /etc/ansible/ansible.cfg
-sed -i -e "s/^#transport      = smart/transport      = local/" /etc/ansible/ansible.cfg
 
 # Create playbook to update ansible.cfg file
 
