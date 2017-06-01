@@ -36,7 +36,7 @@ azure login --service-principal -u $AADCLIENTID -p $AADCLIENTSECRET --tenant $TE
 # Generate private keys for use by Ansible
 echo $(date) " - Generating Private keys for use by Ansible for OpenShift Installation"
 
-mkdir -m 700 /home/$SUDOUSER/.ssh
+mkdir -p -m 700 /home/$SUDOUSER/.ssh
 chown $SUDOUSER /home/$SUDOUSER/.ssh
 
 azure keyvault secret get -u $KEYVAULTNAME -s $PRIVATEKEYSECRETNAME --file /home/$SUDOUSER/.ssh/id_rsa
